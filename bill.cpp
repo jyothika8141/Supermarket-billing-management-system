@@ -184,6 +184,7 @@ void shopping :: add() {
 
 void shopping :: edit(){
     fstream data, data1;
+    int token = 0;
     int pkey;
     int c;
     float p;
@@ -215,7 +216,7 @@ void shopping :: edit(){
                 cin >> d;
                 data1 << " " << c << " " << n << " " << p << " " << d << "\n";
                 cout  << "\t\t\t Record modified " << endl;
-                // token++;
+                token++;
             }
             else {
                 data1 << " " << pcode << " " << pname << " " << price << " " << dis << "\n";
@@ -225,5 +226,145 @@ void shopping :: edit(){
         }
         data.close();
         data1.close();
+
+        remove("database.txt");
+        rename("database1.txt", "database.txt");
+
+        if (token == 0) {
+            cout << "\t\t\t Record not found " << endl;
+        }
+
     }
+}
+
+void shopping :: rem(){
+    fstream data, data1;
+    int pkey;
+    int token = 0;
+    cout << "\t\t\t Delete the record " << endl;
+    cout << "\t\t\t Enter the product code: ";
+    cin >> pkey;
+    data.open("database.txt", ios::in);
+    if (!data){
+        cout << "\t\t\t File doesn't exist " << endl;
+    }
+    else {
+        data1.open("database1.txt", ios::app|ios::out);
+        data >> pcode >> pname >> price >> dis;
+        //it is a little differenct from here
+        while (!data.eof()){
+            if (pkey != pcode){
+                data1 << " " << pcode << " " << pname << " " << price << " " << dis << "\n";
+            }
+            else {
+                cout << "\t\t\t Record deleted " << endl;
+                token++;
+            }
+            data >> pcode >> pname >> price >> dis;
+        }
+        data.close();
+        data1.close();
+
+        remove("database.txt");
+        rename("database1.txt", "database.txt");
+
+        if (token == 0){
+            cout << "\t\t\t Record not found " << endl;
+        }
+    }
+}
+
+void shopping ::list(){
+    fstream data;
+    data.open("database.txt", ios::in);
+    cout << "\t\t\t Product code \t\t Name \t\t Price \t\t Discount \n";
+    data >> pcode >> pname >> price >> dis;
+    while (!data.eof()){
+        cout << "\t\t\t " << pcode << " \t\t " << pname << " \t\t " << price << " \t\t " << dis << "\n";
+        data >> pcode >> pname >> price >> dis;
+    }
+    data.close();
+
+}
+
+void shopping :: receipt(){
+    fstream data;
+
+    int arrc[100];
+    int arrq[100];
+    char choice;
+    int c = 0;
+    float amout = 0;
+    float dis = 0;
+    float netamt = 0;
+
+    cout << "\t\t\t RECEIPT" << endl;
+    data.open("database.txt", ios::in);
+    if (!data) {
+        cout << "\t\t\t The database is empty" << endl;
+    }
+    else {
+        data.close();
+
+        list();
+        cout << "\t\t\t---------------------------" << endl;
+        cout << "\t\t\t Please place your order " << endl;
+        cout << "\t\t\t---------------------------" << endl;
+        cout << "\t\t\t Enter the product code: ";
+        cin >> arrc[c];
+        cout << "\t\t\t Enter the quantity: ";
+        cin >> arrq[c];
+        for (int i = 0; i < c; i++){
+            if (arrc[c] == arrc[i]){
+                cout << "\t\t\t Product code already entered " << endl;
+                // goto m
+            }
+            c++;
+            cout << "\n\n Do you want to place another order [y/n]: ";
+            cin >> choice;
+
+        }
+        while (choice == 'y' || choice == 'Y'){
+            cout << "\t\t\t Enter the product code: ";
+            cin >> arrc[c];
+            cout << "\t\t\t Enter the quantity: ";
+            cin >> arrq[c];
+            for (int i = 0; i < c; i++){
+                if (arrc[c] == arrc[i]){
+                    cout << "\t\t\t Product code already entered " << endl;
+                    // goto m
+                }
+                c++;
+                cout << "\n\n Do you want to place another order [y/n]: ";
+                cin >> choice;
+            }
+        }
+        cout << "\t\t\t---------------------------" << endl;
+        cout << "\t\t\t Supermarket Receipt " << endl;
+        cout << "\t\t\t---------------------------" << endl;
+        cout << "\t\t\t Product code \t\t Quantity \t\t Price \t\t Amount \n";
+        data.open("database.txt", ios::in);
+        data >> pcode >> pname >> price >> dis;
+        while (!data.eof()){
+            for (int i = 0; i < c; i++){
+                if (pcode == arrc[i]){
+                    amout = price * arrq[i];
+                    netamt = netamt + amout;
+                    cout << "\t\t\t " << pcode << " \t\t " << arrq[i] << " \t\t " << price << " \t\t " << amout << "\n";
+                }
+            }
+            data >> pcode >> pname >> price >> dis;
+        }
+        data.close();
+        cout << "\t\t\t---------------------------" << endl;
+        cout << "\t\t\t Net Amount \t\t " << netamt << endl;
+        cout << "\t\t\t---------------------------" << endl;
+    }
+
+}
+
+int main(){
+    shopping s;
+    s.menu();
+    return 0;
 }
